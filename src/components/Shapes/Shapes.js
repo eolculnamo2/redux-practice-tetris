@@ -1,0 +1,1 @@
+//Start with a single point on the grid.  
