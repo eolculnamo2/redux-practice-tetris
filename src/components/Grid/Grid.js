@@ -7,10 +7,10 @@ import {
 } from '../../redux/reducers/counter';
 
 import {
-    generate
+    generate,
+    isOccupied
 } from '../../redux/reducers/positions';
-//send a point (i.e. [5,3] )
-//Coords will come from Redux... 
+
 const gridWidth = Array(25).fill(false)
 const gridHeight = Array(30).fill(false)
 
@@ -20,32 +20,52 @@ class Grid extends React.Component {
         //will move when i implement a  play button
         setInterval(()=>{
             this.props.generate()
-        }, 2000)
+        }, 750)
     }
+    
+    componentDidMount(){
+        window.addEventListener('keydown', (e)=>{
+            let key = e.which || e.keyCode
+            //Press Q/Left Arrow
+            if (key == 81 || key == 37) {
+                this.props.turnLeft()
+            }
+            //Press E/Right Array
+            else if (key == 69 || key == 39) {
+                this.props.turnRight()
+            }
+        })
+    }
+
     render(){
         return(
             <table id="grid-id" className="grid-box">
             
                 {gridHeight.map((x,i)=>{
-                    //PARENT MAP
                     return(
-                        //x,y = i,j
                     <tr id={'row'+i} key={'row'+i}>
+
                         {gridWidth.map((y,j)=>{
-                           // alert(this.props.count)
                             let coord = this.props.positions
-                            //CHILD MAP
-                            var inlineStyle = {
-                                backgroundColor: coord[0] === i && coord[1] === j ? 'black' : 'white'
+                            let occupied = false
+                            
+                            for (var t of this.props.positions[this.props.positions.length-1]) {
+                                if (t[0] === i && t[1] === j) {
+                                    occupied = true
+                                    break
+                                }
+                            }
+
+                            let inlineStyle = {
+                                backgroundColor: occupied ? 'black' : 'white'
                             }
                             return(       
                                 <td onClick={this.props.generate} style={inlineStyle} id={i+"cell"+j} key={i+"cell"+j}>
-                                    {i+"cell"+j}
                                 </td>
                             )
                         })}
                     </tr>
-       )
+                    )
                 })}
             </table>
         )
@@ -55,7 +75,8 @@ class Grid extends React.Component {
 const mapStateToProps = state => {
     return {
         count: state.counter.count,
-        positions: state.positions.positions
+        positions: state.positions.positions,
+        isOccupied: state.positions.isOccupied
     }
 } 
 
@@ -63,7 +84,8 @@ const mapDispatchToProps = dispatch =>{
     return {
         increment,
         decrement,
-        generate
+        generate,
+        isOccupied
     }
 }
 
